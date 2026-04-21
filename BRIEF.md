@@ -47,6 +47,36 @@ Build a single-page internal operations dashboard for FastForward Logistics that
 
 ---
 
+## Tech
+
+- **Framework:** Vue 3 (Composition API)
+- **Build Tool:** Vite
+- **Language:** TypeScript
+- **Routing:** Vue Router
+- **UI Component Library:** Vuetify 3 with Material Design Icons (`@mdi/font`)
+- **Visualizations:** Chart.js with vue-chartjs for all chart components (area charts, bar charts, line charts, sparklines)
+
+---
+
+## Data
+
+- **Source:** Generate a realistic fake dataset as a static JSON file located at `src/data/metrics.json`. This file will serve as the single data source for the entire dashboard until a real API is connected.
+- **Structure:** The JSON file should include the following top-level keys:
+  - **`kpis`** — Current-period values and prior-period comparisons for: Total Shipments, On-Time Delivery Rate (%), Average Transit Time (hours), Open Exceptions Count, and Revenue in Transit ($).
+  - **`shipmentVolume`** — An array of daily records spanning at least the last 90 days. Each record should include: `date`, `totalShipments`, `onTimeCount`, and `lateCount`.
+  - **`regions`** — An array of regional objects (Northeast, Southeast, Midwest, West, International). Each should include: `name`, `totalShipments`, `onTimeRate`, `avgTransitTime`, and `openExceptions`.
+  - **`carriers`** — An array of carrier partner objects (at least 5). Each should include: `name`, `totalShipments`, `onTimeRate`, and `avgTransitTime`.
+  - **`exceptions`** — An array of at least 30 open exception records. Each should include: `shipmentId`, `origin`, `destination`, `region`, `carrier`, `exceptionType` (one of: delay, damage, customs hold, lost, address issue), `severity` (critical, high, medium, low), `status` (open, in progress, escalated), `age` (in hours), `assignedTo`, and `createdAt` (ISO timestamp).
+- **Realism:** Use realistic city names, shipment ID formats (e.g., `FF-2026-XXXXX`), carrier names (e.g., "Summit Freight", "BlueLine Express"), and plausible numeric distributions. On-time rates should vary by region and carrier to make the dashboard interesting — not everything should look perfect.
+- **Filtering:** All dashboard views should support filtering the dataset by:
+  - **Date range** — Today, This Week, This Month, This Quarter (filter `shipmentVolume` and `exceptions` by date).
+  - **Region** — Selecting a region from the regional breakdown should filter shipment volume charts, KPIs, and the exceptions table to that region.
+  - **Exception type** — The exceptions table should be filterable by exception type and severity.
+  - **Search** — A text search on the exceptions table that matches against Shipment ID, origin, destination, or assigned team member.
+- **Import pattern:** Import the JSON file directly in Vue components or through a composable (e.g., `useMetrics()`) that wraps the data and exposes filtered/computed subsets reactively.
+
+---
+
 ## Nice to Haves
 
 - **Dark mode toggle** for different presentation environments.
