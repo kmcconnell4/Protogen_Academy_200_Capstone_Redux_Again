@@ -4,6 +4,10 @@
       <span class="text-subtitle-1 font-weight-semibold">Regional Performance</span>
     </v-card-title>
     <v-card-text class="pa-3 pt-0">
+      <div v-if="sortedRegions.length === 0" class="d-flex flex-column align-center justify-center text-medium-emphasis py-6" style="gap: 8px">
+        <v-icon icon="mdi-map-marker-off-outline" size="40" opacity="0.3" />
+        <span class="text-body-2">No regional data for this period</span>
+      </div>
       <div
         v-for="region in sortedRegions"
         :key="region.name"

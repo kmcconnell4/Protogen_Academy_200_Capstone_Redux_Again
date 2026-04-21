@@ -4,7 +4,11 @@
       <span class="text-subtitle-1 font-weight-semibold">On-Time Delivery Trend</span>
     </v-card-title>
     <v-card-text class="pa-2 pt-0" style="flex: 1 1 0; min-height: 0">
-      <Line :data="chartData" :options="chartOptions" style="height: 100%; width: 100%" />
+      <div v-if="filteredShipmentVolume.length === 0" class="d-flex flex-column align-center justify-center text-medium-emphasis" style="height: 100%; min-height: 180px; gap: 8px">
+        <v-icon icon="mdi-chart-line" size="40" opacity="0.3" />
+        <span class="text-body-2">No delivery data for this period</span>
+      </div>
+      <Line v-else :data="chartData" :options="chartOptions" style="height: 100%; width: 100%" />
     </v-card-text>
   </v-card>
 </template>

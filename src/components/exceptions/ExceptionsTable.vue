@@ -79,7 +79,14 @@
       class="exceptions-table"
       :row-props="rowProps"
     >
-      <!-- Severity chip -->
+      <!-- Empty state -->
+      <template #no-data>
+        <div class="d-flex flex-column align-center justify-center text-medium-emphasis py-10" style="gap: 8px">
+          <v-icon icon="mdi-check-circle-outline" size="48" color="success" opacity="0.4" />
+          <span class="text-body-1 font-weight-medium">No exceptions found</span>
+          <span class="text-body-2">Try adjusting your filters or date range</span>
+        </div>
+      </template>
       <template #item.severity="{ item }">
         <v-chip
           :color="severityColor(item.severity)"
