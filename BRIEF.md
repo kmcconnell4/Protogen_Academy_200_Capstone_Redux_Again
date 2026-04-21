@@ -86,11 +86,54 @@ Build a single-page internal operations dashboard for FastForward Logistics that
 
 ## Nice to Haves
 
-- **Dark mode toggle** for different presentation environments.
+- **Dark mode toggle** ✅ implemented — header toggle switches between dark (`#0F1117`) and light themes.
 - **Sparklines** inside KPI cards showing 7-day or 30-day micro-trends.
-- **Anomaly flags:** Automatically highlight KPIs or regions that have deviated significantly from their rolling average (e.g., a region whose on-time rate dropped 10+ points).
-- **Export options:** Allow exporting the exceptions table to CSV and the full dashboard view to PDF for email recaps.
-- **Annotations:** Ability to pin a note to a specific date on the timeline charts (e.g., "Warehouse 3 closed for maintenance") so leadership has context.
-- **Carrier performance mini-view:** A small leaderboard or breakdown by carrier showing on-time rates per carrier partner.
-- **Mobile-responsive layout** so the VP can glance at it from her phone before a meeting.
-- **Saved views/presets:** Let users save filtered views (e.g., "West Region — This Quarter") for quick access.
+- **Anomaly flags:** Automatically highlight KPIs or regions that have deviated significantly from their rolling average. *(Decided against: produced too many false positives with static data; removed entirely.)*
+- **Export options:** ✅ CSV export implemented on the exceptions table. PDF export not yet built.
+- **Annotations:** Ability to pin a note to a specific date on the timeline charts. Not yet implemented.
+- **Carrier performance mini-view:** A small leaderboard or breakdown by carrier showing on-time rates per carrier partner. Not yet implemented.
+- **Mobile-responsive layout** ✅ implemented — header collapses date range selector to a dropdown on small screens; exceptions table filters stack vertically on mobile.
+- **Saved views/presets:** Let users save filtered views (e.g., "West Region — This Quarter") for quick access. Not yet implemented.
+
+---
+
+## Implementation Decisions
+
+Decisions made during build that deviate from or extend the original brief.
+
+### Layout
+- **Column arrangement swapped:** Regional Performance moved to the left column (~40%) and the charts (Shipment Volume + On-Time Delivery) moved to the right (~60%). This puts the scannable regional data closer to the KPI row for faster reading in meetings.
+- **Date/time removed from header:** The live clock was removed as unnecessary visual noise. The header now shows only the logo, title, date-range selector, "Last updated" label, refresh button, and theme toggle.
+- **Favicon:** Sky blue `mdi-truck-fast` icon on a `#0F1117` rounded background, matching the header logo exactly.
+
+### Date Range Filters
+The brief specified "Today, This Week, This Month, This Quarter." The implemented filters use rolling windows rather than calendar boundaries, and a YTD option was added:
+
+| Label | Range |
+|-------|-------|
+| Today | Current UTC day |
+| 7 Days | Today − 7 days |
+| 30 Days | Today − 30 days |
+| 90 Days | Today − 90 days |
+| YTD | January 1 of current year → today |
+
+### Data Layer
+- **Single composable pattern:** All reactive state (`selectedDateRange`, `selectedRegion`, exception filters) lives as **module-level refs** inside `src/composables/useMetrics.ts`. Every component that calls `useMetrics()` shares the same state — no prop drilling or Pinia store needed.
+- **Two exception computed values:** `kpiExceptions` filters by date + region only (drives the KPI card count). `filteredExceptions` adds type, severity, and search on top (drives the table). This prevents table-level filters from changing the headline number.
+- **Regional scaling:** `shipmentVolume` records have no region field. When a region is selected, each day's totals are scaled by that region's share of global shipments, preserving chart shape while reflecting the correct regional volume.
+- **Avg Transit Time — seasonal offset:** Transit time is a per-route characteristic that doesn't inherently vary by date range. A small seasonal offset is applied by period (YTD +1.1h, 90 Days +0.4h, 30 Days ±0, 7 Days −0.5h, Today −0.8h) to model winter weather impact on longer lookback windows.
+- **Dataset:** 111 daily shipment volume records (Jan 1 – Apr 21, 2026) and 56 exception records (Jan 1 – Apr 21, 2026) across 5 regions, 5 carriers, and all exception/severity types. Early-year exceptions (Jan 1–21) were added specifically so YTD and 90-day filters return meaningfully different counts.
+
+### Exceptions Table
+- **Filters inline with title on desktop:** Search, Type, Severity, and CSV button sit on the same line as "Open Exceptions" on `sm+` breakpoints. On mobile they wrap below the title.
+- **Default sort:** Severity (critical first) then age (oldest first) — matches the brief.
+- **Row expansion:** Clicking a row expands an inline detail panel (Vuetify `v-data-table` expansion model) showing full shipment details. No side drawer was built.
+- **Severity color coding:** Critical = coral red, High = amber, Medium = blue, Low = blue-grey.
+
+### Removed / Deferred
+- No Vue Router: the dashboard is single-view; routing adds no value at this scope.
+- No sparklines yet.
+- No PDF export.
+- No chart annotations.
+- No carrier performance view.
+- No saved presets.
