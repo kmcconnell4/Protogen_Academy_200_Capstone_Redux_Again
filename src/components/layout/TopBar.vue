@@ -15,12 +15,6 @@
     <template #append>
       <div class="d-flex align-center ga-2 ga-sm-4 mr-2 mr-sm-3">
 
-        <!-- Date/time — hidden on mobile -->
-        <div class="d-none d-md-block text-caption text-medium-emphasis text-right" style="line-height: 1.5">
-          <div class="font-weight-medium text-on-surface" style="opacity: 0.85">{{ currentDate }}</div>
-          <div>{{ currentTime }}</div>
-        </div>
-
         <!-- Date range: dropdown on mobile, button toggle on sm+ -->
         <v-select
           v-model="selectedRange"
@@ -74,7 +68,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, onUnmounted, ref } from 'vue'
+import { computed, inject, ref } from 'vue'
 import type { Ref } from 'vue'
 import { useMetrics } from '@/composables/useMetrics'
 
@@ -96,26 +90,6 @@ const rangeItems = [
 const theme = inject<Ref<'light' | 'dark'>>('theme')!
 const toggleTheme = inject<() => void>('toggleTheme')!
 const isDark = computed(() => theme.value === 'dark')
-
-const now = ref(new Date())
-const ticker = setInterval(() => { now.value = new Date() }, 1000)
-onUnmounted(() => clearInterval(ticker))
-
-const currentDate = computed(() =>
-  now.value.toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  }),
-)
-const currentTime = computed(() =>
-  now.value.toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  }),
-)
 
 const refreshing = ref(false)
 const lastUpdated = ref('just now')
