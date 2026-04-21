@@ -1,17 +1,22 @@
 <template>
   <v-card>
     <v-card-title class="pa-4 pb-2">
-      <!-- Title row: always a single line -->
-      <div class="d-flex align-center ga-2 mb-3">
-        <v-icon icon="mdi-alert-circle-outline" color="error" />
-        <span class="text-subtitle-1 font-weight-semibold">Open Exceptions</span>
-        <v-chip color="error" size="small" variant="tonal">
-          {{ filteredExceptions.length }}
-        </v-chip>
-      </div>
-
-      <!-- Filters row: wraps naturally on small screens -->
+      <!-- On desktop: title + filters all on one line. On mobile: title on top, filters below. -->
       <div class="d-flex flex-wrap align-center ga-2">
+        <!-- Title group (never wraps internally) -->
+        <div class="d-flex align-center ga-2 flex-shrink-0">
+          <v-icon icon="mdi-alert-circle-outline" color="error" />
+          <span class="text-subtitle-1 font-weight-semibold">Open Exceptions</span>
+          <v-chip color="error" size="small" variant="tonal">
+            {{ filteredExceptions.length }}
+          </v-chip>
+        </div>
+
+        <!-- Spacer pushes filters to the right on desktop -->
+        <v-spacer class="d-none d-sm-block" />
+
+        <!-- Filters: inline on desktop, full-width row on mobile -->
+        <div class="d-flex align-center ga-2 flex-shrink-0">
         <!-- Search -->
         <v-text-field
           v-model="exceptionSearch"
@@ -21,7 +26,7 @@
           variant="outlined"
           hide-details
           clearable
-          style="min-width: 180px; flex: 1 1 180px; max-width: 320px"
+          style="width: 220px; flex: 0 0 220px"
         />
 
         <!-- Type filter -->
@@ -33,7 +38,7 @@
           variant="outlined"
           hide-details
           clearable
-          style="min-width: 130px; flex: 1 1 130px; max-width: 180px"
+          style="min-width: 120px; flex: 0 1 140px"
         />
 
         <!-- Severity filter -->
@@ -45,7 +50,7 @@
           variant="outlined"
           hide-details
           clearable
-          style="min-width: 120px; flex: 1 1 120px; max-width: 160px"
+          style="min-width: 110px; flex: 0 1 130px"
         />
 
         <!-- Export CSV -->
@@ -57,6 +62,7 @@
         >
           CSV
         </v-btn>
+      </div>
       </div>
     </v-card-title>
 
