@@ -61,16 +61,10 @@
       </v-row>
 
       <!-- Middle Section: Charts + Regional -->
-      <v-row class="mb-4">
-        <v-col cols="12" lg="7" xl="8">
-          <v-row dense>
-            <v-col cols="12">
-              <ShipmentVolumeChart />
-            </v-col>
-            <v-col cols="12">
-              <OnTimeDeliveryChart />
-            </v-col>
-          </v-row>
+      <v-row class="mb-4" style="align-items: stretch">
+        <v-col cols="12" lg="7" xl="8" class="d-flex flex-column" style="gap: 12px">
+          <ShipmentVolumeChart />
+          <OnTimeDeliveryChart style="flex: 1 1 0; min-height: 0" />
         </v-col>
 
         <v-col cols="12" lg="5" xl="4">

@@ -1,10 +1,10 @@
 <template>
-  <v-card>
-    <v-card-title class="pa-4 pb-2">
+  <v-card class="d-flex flex-column" style="height: 100%">
+    <v-card-title class="pa-4 pb-2 flex-shrink-0">
       <span class="text-subtitle-1 font-weight-semibold">On-Time Delivery Trend</span>
     </v-card-title>
-    <v-card-text class="pa-2 pt-0">
-      <Line :data="chartData" :options="chartOptions" style="max-height: 200px" />
+    <v-card-text class="pa-2 pt-0" style="flex: 1 1 0; min-height: 0">
+      <Line :data="chartData" :options="chartOptions" style="height: 100%; width: 100%" />
     </v-card-text>
   </v-card>
 </template>
