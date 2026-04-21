@@ -1,7 +1,8 @@
 <template>
   <v-card>
-    <v-card-title class="pa-4 pb-2 d-flex align-center flex-wrap ga-3">
-      <div class="d-flex align-center ga-2">
+    <v-card-title class="pa-4 pb-2">
+      <!-- Title row: always a single line -->
+      <div class="d-flex align-center ga-2 mb-3">
         <v-icon icon="mdi-alert-circle-outline" color="error" />
         <span class="text-subtitle-1 font-weight-semibold">Open Exceptions</span>
         <v-chip color="error" size="small" variant="tonal">
@@ -9,53 +10,54 @@
         </v-chip>
       </div>
 
-      <v-spacer />
+      <!-- Filters row: wraps naturally on small screens -->
+      <div class="d-flex flex-wrap align-center ga-2">
+        <!-- Search -->
+        <v-text-field
+          v-model="exceptionSearch"
+          prepend-inner-icon="mdi-magnify"
+          placeholder="Search shipment ID, city, or assignee…"
+          density="compact"
+          variant="outlined"
+          hide-details
+          clearable
+          style="min-width: 180px; flex: 1 1 180px; max-width: 320px"
+        />
 
-      <!-- Search -->
-      <v-text-field
-        v-model="exceptionSearch"
-        prepend-inner-icon="mdi-magnify"
-        placeholder="Search shipment ID, city, or assignee…"
-        density="compact"
-        variant="outlined"
-        hide-details
-        clearable
-        style="max-width: 280px"
-      />
+        <!-- Type filter -->
+        <v-select
+          v-model="exceptionTypeFilter"
+          :items="exceptionTypes"
+          label="Type"
+          density="compact"
+          variant="outlined"
+          hide-details
+          clearable
+          style="min-width: 130px; flex: 1 1 130px; max-width: 180px"
+        />
 
-      <!-- Type filter -->
-      <v-select
-        v-model="exceptionTypeFilter"
-        :items="exceptionTypes"
-        label="Type"
-        density="compact"
-        variant="outlined"
-        hide-details
-        clearable
-        style="max-width: 150px"
-      />
+        <!-- Severity filter -->
+        <v-select
+          v-model="exceptionSeverityFilter"
+          :items="severities"
+          label="Severity"
+          density="compact"
+          variant="outlined"
+          hide-details
+          clearable
+          style="min-width: 120px; flex: 1 1 120px; max-width: 160px"
+        />
 
-      <!-- Severity filter -->
-      <v-select
-        v-model="exceptionSeverityFilter"
-        :items="severities"
-        label="Severity"
-        density="compact"
-        variant="outlined"
-        hide-details
-        clearable
-        style="max-width: 140px"
-      />
-
-      <!-- Export CSV -->
-      <v-btn
-        variant="outlined"
-        size="small"
-        prepend-icon="mdi-download"
-        @click="exportCsv"
-      >
-        CSV
-      </v-btn>
+        <!-- Export CSV -->
+        <v-btn
+          variant="outlined"
+          size="small"
+          prepend-icon="mdi-download"
+          @click="exportCsv"
+        >
+          CSV
+        </v-btn>
+      </div>
     </v-card-title>
 
     <v-divider />
