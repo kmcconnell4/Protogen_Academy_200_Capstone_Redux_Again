@@ -17,25 +17,19 @@ const exceptionTypeFilter = ref<string | null>(null)
 const exceptionSeverityFilter = ref<string | null>(null)
 
 function getDateCutoff(range: DateRange): Date {
-  const now = new Date('2026-04-21T08:00:00Z')
+  const now = new Date()
+  // Work in UTC throughout to match how bare date strings like "2026-04-21"
+  // are parsed by the Date constructor (always UTC midnight).
+  const todayUtc = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
   switch (range) {
     case 'today':
-      return new Date(now.getFullYear(), now.getMonth(), now.getDate())
-    case 'week': {
-      const d = new Date(now)
-      d.setDate(d.getDate() - 6)
-      return d
-    }
-    case 'month': {
-      const d = new Date(now)
-      d.setDate(d.getDate() - 29)
-      return d
-    }
-    case 'quarter': {
-      const d = new Date(now)
-      d.setDate(d.getDate() - 89)
-      return d
-    }
+      return new Date(todayUtc)
+    case 'week':
+      return new Date(todayUtc - 6 * 86_400_000)
+    case 'month':
+      return new Date(todayUtc - 29 * 86_400_000)
+    case 'quarter':
+      return new Date(todayUtc - 89 * 86_400_000)
   }
 }
 
