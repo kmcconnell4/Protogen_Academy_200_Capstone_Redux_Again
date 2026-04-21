@@ -101,19 +101,58 @@ const computedKpis = computed(() => {
   const onTimeRate = total > 0 ? Math.round((onTime / total) * 1000) / 10 : 0
   const openEx = filteredExceptions.value.length
 
+  // Avg transit time: weighted average of each filtered exception's region transit time
+  const regionTransitMap: Record<string, number> = {}
+  for (const r of data.regions) regionTransitMap[r.name] = r.avgTransitTime
+  const exList = filteredExceptions.value
+  const avgTransit =
+    exList.length > 0
+      ? exList.reduce((s, e) => s + (regionTransitMap[e.region] ?? data.kpis.avgTransitTime.current), 0) /
+        exList.length
+      : data.kpis.avgTransitTime.current
+
+  // Revenue in transit: scale proportionally to filtered shipment volume
+  const allTimeTotal = data.kpis.totalShipments.current
+  const revenueScale = allTimeTotal > 0 ? total / allTimeTotal : 1
+  const revenue = Math.round(data.kpis.revenueInTransit.current * revenueScale)
+
   return {
     totalShipments: { current: total, prior: data.kpis.totalShipments.prior },
     onTimeRate: { current: onTimeRate, prior: data.kpis.onTimeRate.prior },
-    avgTransitTime: data.kpis.avgTransitTime,
+    avgTransitTime: {
+      current: Math.round(avgTransit * 10) / 10,
+      prior: data.kpis.avgTransitTime.prior,
+    },
     openExceptions: { current: openEx, prior: data.kpis.openExceptions.prior },
-    revenueInTransit: data.kpis.revenueInTransit,
+    revenueInTransit: { current: revenue, prior: data.kpis.revenueInTransit.prior },
   }
+})
+
+// Regional breakdown filtered by date range and region selection.
+// totalShipments scales with filtered volume; openExceptions is counted live from
+// filteredExceptions; onTimeRate and avgTransitTime are period-independent route
+// characteristics so they stay as-is from the base data.
+const filteredRegions = computed(() => {
+  const allTimeTotal = data.kpis.totalShipments.current
+  const filteredTotal = filteredShipmentVolume.value.reduce((s, r) => s + r.totalShipments, 0)
+  const scale = allTimeTotal > 0 ? filteredTotal / allTimeTotal : 1
+
+  // Count open exceptions per region from the already-filtered exceptions list
+  const exByRegion: Record<string, number> = {}
+  for (const e of filteredExceptions.value) {
+    exByRegion[e.region] = (exByRegion[e.region] ?? 0) + 1
+  }
+
+  return data.regions.map((r) => ({
+    ...r,
+    totalShipments: Math.round(r.totalShipments * scale),
+    openExceptions: exByRegion[r.name] ?? 0,
+  }))
 })
 
 export function useMetrics() {
   return {
     // Raw data
-    regions: data.regions,
     carriers: data.carriers,
 
     // Reactive state
@@ -126,6 +165,7 @@ export function useMetrics() {
     // Computed filtered outputs
     filteredShipmentVolume,
     filteredExceptions,
+    filteredRegions,
     computedKpis,
   }
 }

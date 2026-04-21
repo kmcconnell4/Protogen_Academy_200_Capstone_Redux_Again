@@ -72,10 +72,10 @@
 import { computed } from 'vue'
 import { useMetrics } from '@/composables/useMetrics'
 
-const { regions, selectedRegion } = useMetrics()
+const { filteredRegions, selectedRegion } = useMetrics()
 
 const sortedRegions = computed(() =>
-  [...regions].sort((a, b) => b.onTimeRate - a.onTimeRate),
+  [...filteredRegions.value].sort((a, b) => b.onTimeRate - a.onTimeRate),
 )
 
 function toggleRegion(name: string) {
@@ -96,7 +96,7 @@ function rateTextClass(rate: number): string {
 
 // Flag a region as anomalous if its on-time rate is 10+ points below the best-performing region
 const avgOnTimeRate = computed(
-  () => regions.reduce((s, r) => s + r.onTimeRate, 0) / regions.length,
+  () => filteredRegions.value.reduce((s, r) => s + r.onTimeRate, 0) / filteredRegions.value.length,
 )
 
 function isAnomaly(region: { onTimeRate: number }): boolean {
