@@ -7,20 +7,30 @@
           <div class="text-subtitle-1 font-weight-bold lh-1" style="font-family: Inter, sans-serif; letter-spacing: -0.01em">
             FastForward Logistics
           </div>
-          <div class="text-caption text-medium-emphasis">Operations Dashboard</div>
+          <div class="text-caption text-medium-emphasis d-none d-sm-block">Operations Dashboard</div>
         </div>
       </div>
     </v-app-bar-title>
 
     <template #append>
-      <div class="d-flex align-center ga-4 mr-3">
-        <!-- Date/time -->
-        <div class="text-caption text-medium-emphasis text-right" style="line-height: 1.5">
+      <div class="d-flex align-center ga-2 ga-sm-4 mr-2 mr-sm-3">
+
+        <!-- Date/time — hidden on mobile -->
+        <div class="d-none d-md-block text-caption text-medium-emphasis text-right" style="line-height: 1.5">
           <div class="font-weight-medium text-on-surface" style="opacity: 0.85">{{ currentDate }}</div>
           <div>{{ currentTime }}</div>
         </div>
 
-        <!-- Date range selector -->
+        <!-- Date range: dropdown on mobile, button toggle on sm+ -->
+        <v-select
+          v-model="selectedRange"
+          :items="rangeItems"
+          density="compact"
+          variant="outlined"
+          hide-details
+          class="d-sm-none"
+          style="max-width: 120px; font-size: 13px"
+        />
         <v-btn-toggle
           v-model="selectedRange"
           density="compact"
@@ -28,6 +38,7 @@
           variant="outlined"
           divided
           rounded="lg"
+          class="d-none d-sm-flex"
         >
           <v-btn value="today" size="small">Today</v-btn>
           <v-btn value="week" size="small">Week</v-btn>
@@ -35,9 +46,9 @@
           <v-btn value="quarter" size="small">Quarter</v-btn>
         </v-btn-toggle>
 
-        <!-- Last updated & refresh -->
+        <!-- Refresh: label hidden on mobile, icon always visible -->
         <div class="d-flex align-center ga-1">
-          <span class="text-caption text-medium-emphasis">Updated {{ lastUpdated }}</span>
+          <span class="d-none d-md-inline text-caption text-medium-emphasis">Updated {{ lastUpdated }}</span>
           <v-btn
             icon="mdi-refresh"
             variant="text"
@@ -72,6 +83,13 @@ const selectedRange = computed({
   get: () => selectedDateRange.value,
   set: (v) => (selectedDateRange.value = v as typeof selectedDateRange.value),
 })
+
+const rangeItems = [
+  { title: 'Today', value: 'today' },
+  { title: 'Week', value: 'week' },
+  { title: 'Month', value: 'month' },
+  { title: 'Quarter', value: 'quarter' },
+]
 
 const theme = inject<Ref<'light' | 'dark'>>('theme')!
 const toggleTheme = inject<() => void>('toggleTheme')!

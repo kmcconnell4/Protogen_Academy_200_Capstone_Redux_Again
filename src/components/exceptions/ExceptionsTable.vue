@@ -64,6 +64,7 @@
       :headers="headers"
       :items="filteredExceptions"
       :sort-by="sortBy"
+      v-model:expanded="expandedRows"
       item-value="shipmentId"
       density="compact"
       hover
@@ -112,7 +113,7 @@
       <!-- Expand row -->
       <template #item.actions="{ item }">
         <v-btn
-          :icon="expandedRow === item.shipmentId ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+          :icon="expandedRows.includes(item.shipmentId) ? 'mdi-chevron-up' : 'mdi-chevron-down'"
           variant="text"
           size="x-small"
           @click.stop="toggleExpand(item.shipmentId)"
@@ -126,19 +127,19 @@
             <v-sheet color="surface-variant" class="pa-4 d-flex flex-wrap ga-6">
               <div>
                 <div class="text-caption text-medium-emphasis text-uppercase font-weight-medium mb-1">Carrier</div>
-                <div class="text-body-2">{{ item.carrier }}</div>
+                <div class="text-body-2 text-high-emphasis">{{ item.carrier }}</div>
               </div>
               <div>
                 <div class="text-caption text-medium-emphasis text-uppercase font-weight-medium mb-1">Region</div>
-                <div class="text-body-2">{{ item.region }}</div>
+                <div class="text-body-2 text-high-emphasis">{{ item.region }}</div>
               </div>
               <div>
                 <div class="text-caption text-medium-emphasis text-uppercase font-weight-medium mb-1">Created</div>
-                <div class="text-body-2">{{ formatDate(item.createdAt) }}</div>
+                <div class="text-body-2 text-high-emphasis">{{ formatDate(item.createdAt) }}</div>
               </div>
               <div>
                 <div class="text-caption text-medium-emphasis text-uppercase font-weight-medium mb-1">Assigned To</div>
-                <div class="text-body-2">{{ item.assignedTo }}</div>
+                <div class="text-body-2 text-high-emphasis">{{ item.assignedTo }}</div>
               </div>
             </v-sheet>
           </td>
@@ -160,10 +161,12 @@ const {
   exceptionSeverityFilter,
 } = useMetrics()
 
-const expandedRow = ref<string | null>(null)
+const expandedRows = ref<string[]>([])
 
 function toggleExpand(id: string) {
-  expandedRow.value = expandedRow.value === id ? null : id
+  const idx = expandedRows.value.indexOf(id)
+  if (idx === -1) expandedRows.value = [...expandedRows.value, id]
+  else expandedRows.value = expandedRows.value.filter((r) => r !== id)
 }
 
 const exceptionTypes = [
@@ -244,7 +247,7 @@ function rowProps({ item }: { item: Exception }) {
   const classes: Record<string, boolean> = {
     'row-critical': item.severity === 'critical',
     'row-high': item.severity === 'high',
-    'row-expanded': expandedRow.value === item.shipmentId,
+    'row-expanded': expandedRows.value.includes(item.shipmentId),
   }
   return { class: classes, onClick: () => toggleExpand(item.shipmentId) }
 }
