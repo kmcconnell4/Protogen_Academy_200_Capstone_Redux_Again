@@ -35,7 +35,28 @@ function getDateCutoff(range: DateRange): Date {
 
 const filteredShipmentVolume = computed<ShipmentVolumeRecord[]>(() => {
   const cutoff = getDateCutoff(selectedDateRange.value)
-  return data.shipmentVolume.filter((r) => new Date(r.date) >= cutoff)
+  const dateFiltered = data.shipmentVolume.filter((r) => new Date(r.date) >= cutoff)
+
+  if (!selectedRegion.value) return dateFiltered
+
+  // shipmentVolume records have no region field — scale each day's counts by the
+  // selected region's share of global shipments and its own on-time rate.
+  const region = data.regions.find((r) => r.name === selectedRegion.value)
+  if (!region) return dateFiltered
+
+  const globalTotal = data.regions.reduce((s, r) => s + r.totalShipments, 0)
+  const regionShare = globalTotal > 0 ? region.totalShipments / globalTotal : 0
+
+  return dateFiltered.map((r) => {
+    const total = Math.round(r.totalShipments * regionShare)
+    const onTime = Math.round(total * (region.onTimeRate / 100))
+    return {
+      ...r,
+      totalShipments: total,
+      onTimeCount: onTime,
+      lateCount: total - onTime,
+    }
+  })
 })
 
 const filteredExceptions = computed<Exception[]>(() => {
