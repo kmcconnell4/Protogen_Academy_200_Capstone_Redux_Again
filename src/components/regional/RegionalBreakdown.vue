@@ -83,14 +83,14 @@ function toggleRegion(name: string) {
 }
 
 function rateColor(rate: number): string {
-  if (rate >= 90) return 'success'
-  if (rate >= 82) return 'warning'
+  if (rate >= 85) return 'success'
+  if (rate >= 75) return 'warning'
   return 'error'
 }
 
 function rateTextClass(rate: number): string {
-  if (rate >= 90) return 'text-success'
-  if (rate >= 82) return 'text-warning'
+  if (rate >= 85) return 'text-success'
+  if (rate >= 75) return 'text-warning'
   return 'text-error'
 }
 
@@ -108,14 +108,17 @@ function isAnomaly(region: { onTimeRate: number }): boolean {
 .region-row {
   cursor: pointer;
   border-radius: 8px;
-  padding: 6px 8px;
-  transition: background 0.15s ease;
+  padding: 6px 8px 6px 12px;
+  border-left: 3px solid transparent;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 .region-row:hover {
-  background: rgba(10, 61, 107, 0.05);
+  background: rgba(56, 189, 248, 0.05);
 }
 .region-row--selected {
-  background: rgba(10, 61, 107, 0.08);
-  outline: 1px solid rgba(10, 61, 107, 0.3);
+  background: rgba(56, 189, 248, 0.1);
+  border-left-color: #38BDF8;
+  outline: 1px solid rgba(56, 189, 248, 0.25);
+  outline-offset: 0px;
 }
 </style>
