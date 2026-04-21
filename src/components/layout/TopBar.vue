@@ -41,9 +41,10 @@
           class="d-none d-sm-flex"
         >
           <v-btn value="today" size="small">Today</v-btn>
-          <v-btn value="week" size="small">Week</v-btn>
-          <v-btn value="month" size="small">Month</v-btn>
-          <v-btn value="quarter" size="small">Quarter</v-btn>
+          <v-btn value="week" size="small">7 Days</v-btn>
+          <v-btn value="month" size="small">30 Days</v-btn>
+          <v-btn value="quarter" size="small">90 Days</v-btn>
+          <v-btn value="ytd" size="small">YTD</v-btn>
         </v-btn-toggle>
 
         <!-- Refresh: label hidden on mobile, icon always visible -->
@@ -86,9 +87,10 @@ const selectedRange = computed({
 
 const rangeItems = [
   { title: 'Today', value: 'today' },
-  { title: 'Week', value: 'week' },
-  { title: 'Month', value: 'month' },
-  { title: 'Quarter', value: 'quarter' },
+  { title: '7 Days', value: 'week' },
+  { title: '30 Days', value: 'month' },
+  { title: '90 Days', value: 'quarter' },
+  { title: 'Year to Date', value: 'ytd' },
 ]
 
 const theme = inject<Ref<'light' | 'dark'>>('theme')!

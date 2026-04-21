@@ -54,4 +54,4 @@ export interface MetricsData {
   exceptions: Exception[]
 }
 
-export type DateRange = 'today' | 'week' | 'month' | 'quarter'
+export type DateRange = 'today' | 'week' | 'month' | 'quarter' | 'ytd'

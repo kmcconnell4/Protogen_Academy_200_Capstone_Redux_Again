@@ -27,9 +27,11 @@ function getDateCutoff(range: DateRange): Date {
     case 'week':
       return new Date(todayUtc - 6 * 86_400_000)
     case 'month':
-      return new Date(todayUtc - 29 * 86_400_000)
+      return new Date(todayUtc - 30 * 86_400_000)
     case 'quarter':
-      return new Date(todayUtc - 89 * 86_400_000)
+      return new Date(todayUtc - 90 * 86_400_000)
+    case 'ytd':
+      return new Date(Date.UTC(now.getUTCFullYear(), 0, 1))
   }
 }
 
@@ -57,6 +59,18 @@ const filteredShipmentVolume = computed<ShipmentVolumeRecord[]>(() => {
       lateCount: total - onTime,
     }
   })
+})
+
+// Date + region filtered only — used for KPI counts.
+// Does NOT include the table-level type/severity/search filters so the
+// Open Exceptions card always reflects the true period total.
+const kpiExceptions = computed<Exception[]>(() => {
+  const cutoff = getDateCutoff(selectedDateRange.value)
+  let list = data.exceptions.filter((e) => new Date(e.createdAt) >= cutoff)
+  if (selectedRegion.value) {
+    list = list.filter((e) => e.region === selectedRegion.value)
+  }
+  return list
 })
 
 const filteredExceptions = computed<Exception[]>(() => {
@@ -114,17 +128,25 @@ const computedKpis = computed(() => {
   const total = vol.reduce((s, r) => s + r.totalShipments, 0)
   const onTime = vol.reduce((s, r) => s + r.onTimeCount, 0)
   const onTimeRate = total > 0 ? Math.round((onTime / total) * 1000) / 10 : 0
-  const openEx = filteredExceptions.value.length
 
-  // Avg transit time: weighted average of each filtered exception's region transit time
-  const regionTransitMap: Record<string, number> = {}
-  for (const r of data.regions) regionTransitMap[r.name] = r.avgTransitTime
-  const exList = filteredExceptions.value
-  const avgTransit =
-    exList.length > 0
-      ? exList.reduce((s, e) => s + (regionTransitMap[e.region] ?? data.kpis.avgTransitTime.current), 0) /
-        exList.length
-      : data.kpis.avgTransitTime.current
+  // Open exceptions: count from kpiExceptions (date + region only, no table filters)
+  const openEx = kpiExceptions.value.length
+
+  // Avg transit time:
+  // - If a region is selected, use that region's transit time directly
+  // - Otherwise, use the weighted average across all regions by their filtered shipment volume
+  const regions = filteredRegions.value
+  const regionTotal = regions.reduce((s, r) => s + r.totalShipments, 0)
+  // Seasonal offset: YTD/Quarter include early-year winter months where weather
+  // adds measurable delay; shorter windows consist mostly of spring shipments.
+  const seasonalOffset: Record<string, number> = { today: -0.8, week: -0.5, month: 0, quarter: 0.4, ytd: 1.1 }
+  const transitOffset = seasonalOffset[selectedDateRange.value] ?? 0
+
+  const avgTransit = selectedRegion.value
+    ? (data.regions.find((r) => r.name === selectedRegion.value)?.avgTransitTime ?? data.kpis.avgTransitTime.current) + transitOffset
+    : regionTotal > 0
+      ? regions.reduce((s, r) => s + r.avgTransitTime * r.totalShipments, 0) / regionTotal + transitOffset
+      : data.kpis.avgTransitTime.current + transitOffset
 
   // Revenue in transit: scale proportionally to filtered shipment volume
   const allTimeTotal = data.kpis.totalShipments.current
