@@ -30,18 +30,6 @@
         </span>
         <span class="text-caption text-medium-emphasis ml-1">vs prior period</span>
       </div>
-
-      <!-- Anomaly flag — only fires for rate metrics that have genuinely dropped -->
-      <v-chip
-        v-if="anomalyFlag"
-        color="warning"
-        size="x-small"
-        variant="tonal"
-        class="mt-2"
-        prepend-icon="mdi-alert"
-      >
-        {{ trendLabel }} vs prior period
-      </v-chip>
     </v-card-text>
   </v-card>
 </template>
@@ -114,16 +102,6 @@ const trendLabel = computed(() => {
 })
 
 const iconColor = computed(() => props.accentColor)
-
-const valueClass = computed(() => '')
-
-// Anomaly: only meaningful for rate/ratio KPIs (percent, hours).
-// Volume and currency counts naturally shrink with a narrower date window,
-// so flagging them would produce constant false positives.
-const anomalyFlag = computed(() => {
-  const isRateMetric = props.format === 'percent' || props.format === 'hours'
-  return isRateMetric && !isPositive.value && Math.abs(delta.value) >= 10
-})
 </script>
 
 <style scoped>

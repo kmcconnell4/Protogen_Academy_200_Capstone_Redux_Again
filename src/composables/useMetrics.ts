@@ -129,23 +129,45 @@ const computedKpis = computed(() => {
 })
 
 // Regional breakdown filtered by date range and region selection.
-// totalShipments scales with filtered volume; openExceptions is counted live from
-// filteredExceptions; onTimeRate and avgTransitTime are period-independent route
-// characteristics so they stay as-is from the base data.
+// - totalShipments: scales proportionally with the filtered volume window
+// - onTimeRate: the global on-time rate for the filtered period is computed from
+//   shipmentVolume, then the delta vs the all-time global rate is applied uniformly
+//   to each region so regional differences are preserved while the trend responds
+//   to the selected date range
+// - openExceptions: counted live from filteredExceptions (already date+region aware)
 const filteredRegions = computed(() => {
+  const filteredVol = filteredShipmentVolume.value
+  const filteredTotal = filteredVol.reduce((s, r) => s + r.totalShipments, 0)
+  const filteredOnTime = filteredVol.reduce((s, r) => s + r.onTimeCount, 0)
+
   const allTimeTotal = data.kpis.totalShipments.current
-  const filteredTotal = filteredShipmentVolume.value.reduce((s, r) => s + r.totalShipments, 0)
   const scale = allTimeTotal > 0 ? filteredTotal / allTimeTotal : 1
 
-  // Count open exceptions per region from the already-filtered exceptions list
+  // Global on-time rate for the filtered period
+  const filteredGlobalRate = filteredTotal > 0 ? (filteredOnTime / filteredTotal) * 100 : data.kpis.onTimeRate.current
+
+  // Weighted all-time global on-time rate from base region data
+  const baseGlobalRate =
+    data.regions.reduce((s, r) => s + r.totalShipments * r.onTimeRate, 0) /
+    data.regions.reduce((s, r) => s + r.totalShipments, 0)
+
+  // Apply the period delta to each region's base rate, preserving relative differences
+  const rateDelta = filteredGlobalRate - baseGlobalRate
+
+  // Count open exceptions per region from the date-filtered exceptions list,
+  // ignoring the region selection filter so all regions show their own counts
   const exByRegion: Record<string, number> = {}
-  for (const e of filteredExceptions.value) {
-    exByRegion[e.region] = (exByRegion[e.region] ?? 0) + 1
+  const cutoff = getDateCutoff(selectedDateRange.value)
+  for (const e of data.exceptions) {
+    if (new Date(e.createdAt) >= cutoff) {
+      exByRegion[e.region] = (exByRegion[e.region] ?? 0) + 1
+    }
   }
 
   return data.regions.map((r) => ({
     ...r,
     totalShipments: Math.round(r.totalShipments * scale),
+    onTimeRate: Math.round(Math.min(100, Math.max(0, r.onTimeRate + rateDelta)) * 10) / 10,
     openExceptions: exByRegion[r.name] ?? 0,
   }))
 })
