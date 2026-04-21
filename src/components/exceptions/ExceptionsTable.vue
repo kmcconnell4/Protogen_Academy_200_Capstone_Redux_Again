@@ -166,8 +166,19 @@ function toggleExpand(id: string) {
   expandedRow.value = expandedRow.value === id ? null : id
 }
 
-const exceptionTypes = ['delay', 'damage', 'customs hold', 'lost', 'address issue']
-const severities = ['critical', 'high', 'medium', 'low']
+const exceptionTypes = [
+  { title: 'Delay', value: 'delay' },
+  { title: 'Damage', value: 'damage' },
+  { title: 'Customs Hold', value: 'customs hold' },
+  { title: 'Lost', value: 'lost' },
+  { title: 'Address Issue', value: 'address issue' },
+]
+const severities = [
+  { title: 'Critical', value: 'critical' },
+  { title: 'High', value: 'high' },
+  { title: 'Medium', value: 'medium' },
+  { title: 'Low', value: 'low' },
+]
 
 const headers = [
   { title: 'Shipment ID', key: 'shipmentId', width: '140px' },
@@ -194,7 +205,7 @@ const severityOrder: Record<string, number> = {
 }
 
 function severityColor(s: string): string {
-  return { critical: 'error', high: 'warning', medium: 'info', low: 'default' }[s] ?? 'default'
+  return { critical: 'error', high: 'warning', medium: 'info', low: 'blue-grey' }[s] ?? 'blue-grey'
 }
 
 function statusColor(s: string): string {

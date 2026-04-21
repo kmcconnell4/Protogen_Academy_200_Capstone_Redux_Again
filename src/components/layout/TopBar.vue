@@ -62,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, ref } from 'vue'
+import { computed, inject, onUnmounted, ref } from 'vue'
 import type { Ref } from 'vue'
 import { useMetrics } from '@/composables/useMetrics'
 
@@ -77,17 +77,25 @@ const theme = inject<Ref<'light' | 'dark'>>('theme')!
 const toggleTheme = inject<() => void>('toggleTheme')!
 const isDark = computed(() => theme.value === 'dark')
 
-const now = new Date('2026-04-21T08:00:00')
-const currentDate = now.toLocaleDateString('en-US', {
-  weekday: 'long',
-  year: 'numeric',
-  month: 'long',
-  day: 'numeric',
-})
-const currentTime = now.toLocaleTimeString('en-US', {
-  hour: '2-digit',
-  minute: '2-digit',
-})
+const now = ref(new Date())
+const ticker = setInterval(() => { now.value = new Date() }, 1000)
+onUnmounted(() => clearInterval(ticker))
+
+const currentDate = computed(() =>
+  now.value.toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  }),
+)
+const currentTime = computed(() =>
+  now.value.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  }),
+)
 
 const refreshing = ref(false)
 const lastUpdated = ref('just now')
@@ -99,6 +107,8 @@ function onRefresh() {
     lastUpdated.value = 'just now'
   }, 1200)
 }
+</script>
+
 <style scoped>
 .topbar {
   border-bottom: 1px solid rgba(148, 163, 184, 0.12) !important;
