@@ -10,41 +10,44 @@ export default createVuetify({
     sets: { mdi },
   },
   theme: {
-    defaultTheme: 'light',
+    defaultTheme: 'dark',
     themes: {
-      light: {
+      dark: {
+        dark: true,
         colors: {
-          primary: '#0A3D6B',
-          secondary: '#0D7E8A',
-          accent: '#0BBCD6',
-          success: '#2E7D32',
-          warning: '#F57C00',
-          error: '#C62828',
-          'on-time': '#2E7D32',
-          'at-risk': '#F57C00',
-          'critical-red': '#C62828',
-          surface: '#FFFFFF',
-          background: '#F4F6F9',
-          'surface-variant': '#E9EEF4',
+          // Core palette
+          background: '#0F1117',
+          surface: '#161C27',
+          'surface-variant': '#1E2636',
+          // Brand accent — electric sky blue
+          primary: '#38BDF8',
+          secondary: '#818CF8',
+          // Semantic
+          success: '#34D399',
+          warning: '#FBBF24',
+          error: '#F87171',
+          // Borders (referenced in CSS vars)
+          'border-subtle': '#2A3347',
         },
       },
-      dark: {
+      light: {
+        dark: false,
         colors: {
-          primary: '#4A9FD8',
-          secondary: '#26B8C8',
-          accent: '#0BBCD6',
-          success: '#4CAF50',
-          warning: '#FFA726',
-          error: '#EF5350',
-          background: '#0D1117',
-          surface: '#161B22',
-          'surface-variant': '#1E2730',
+          background: '#F8FAFC',
+          surface: '#FFFFFF',
+          'surface-variant': '#F1F5F9',
+          primary: '#0EA5E9',
+          secondary: '#6366F1',
+          success: '#10B981',
+          warning: '#F59E0B',
+          error: '#EF4444',
+          'border-subtle': '#E2E8F0',
         },
       },
     },
   },
   defaults: {
-    VCard: { rounded: 'lg', elevation: 1 },
+    VCard: { rounded: 'lg', elevation: 0 },
     VBtn: { rounded: 'md' },
     VDataTable: { density: 'compact' },
   },

@@ -2,6 +2,7 @@
   <v-card
     class="kpi-card"
     :class="{ 'kpi-card--clickable': !!props.scrollTarget }"
+    :style="{ borderTop: `3px solid ${accentColor}` }"
     @click="handleClick"
   >
     <v-card-text class="pa-4">
@@ -10,11 +11,11 @@
           <div class="text-caption text-medium-emphasis font-weight-medium text-uppercase ls-wide">
             {{ label }}
           </div>
-          <div class="text-h4 font-weight-bold mt-1 kpi-value" :class="valueClass">
+          <div class="text-h3 font-weight-bold mt-1 kpi-value" style="letter-spacing: -0.02em; font-family: Inter, sans-serif">
             {{ formattedValue }}
           </div>
         </div>
-        <v-icon :icon="icon" :color="iconColor" size="28" class="mt-1 opacity-70" />
+        <v-icon :icon="icon" :color="accentColor" size="24" class="mt-1 opacity-60" />
       </div>
 
       <!-- Trend indicator -->
@@ -30,7 +31,7 @@
         <span class="text-caption text-medium-emphasis ml-1">vs prior period</span>
       </div>
 
-      <!-- Anomaly flag -->
+      <!-- Anomaly flag — only fires for rate metrics that have genuinely dropped -->
       <v-chip
         v-if="anomalyFlag"
         color="warning"
@@ -39,7 +40,7 @@
         class="mt-2"
         prepend-icon="mdi-alert"
       >
-        Deviation detected
+        {{ trendLabel }} vs prior period
       </v-chip>
     </v-card-text>
   </v-card>
@@ -54,6 +55,7 @@ interface Props {
   priorValue: number
   format?: 'number' | 'percent' | 'hours' | 'currency'
   icon: string
+  accentColor?: string
   higherIsBetter?: boolean
   scrollTarget?: string
 }
@@ -61,6 +63,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
   format: 'number',
   higherIsBetter: true,
+  accentColor: '#38BDF8',
 })
 
 const emit = defineEmits<{ click: [] }>()
@@ -110,25 +113,31 @@ const trendLabel = computed(() => {
   return `${sign}${delta.value.toFixed(1)}%`
 })
 
-const iconColor = computed(() => (isPositive.value ? 'primary' : 'error'))
+const iconColor = computed(() => props.accentColor)
 
 const valueClass = computed(() => '')
 
-// Anomaly: deviation > 10% in the bad direction
+// Anomaly: only meaningful for rate/ratio KPIs (percent, hours).
+// Volume and currency counts naturally shrink with a narrower date window,
+// so flagging them would produce constant false positives.
 const anomalyFlag = computed(() => {
-  return !isPositive.value && Math.abs(delta.value) >= 10
+  const isRateMetric = props.format === 'percent' || props.format === 'hours'
+  return isRateMetric && !isPositive.value && Math.abs(delta.value) >= 10
 })
 </script>
 
 <style scoped>
 .kpi-card {
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  font-family: Inter, sans-serif;
 }
 .kpi-card--clickable {
   cursor: pointer;
 }
 .kpi-card--clickable:hover {
-  box-shadow: 0 4px 20px rgba(10, 61, 107, 0.15) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25) !important;
 }
 .ls-wide {
   letter-spacing: 0.08em;

@@ -1,20 +1,22 @@
 <template>
-  <v-app-bar flat color="primary" :elevation="2">
+  <v-app-bar flat color="surface" elevation="0" class="topbar">
     <v-app-bar-title>
       <div class="d-flex align-center ga-3">
-        <v-icon icon="mdi-truck-fast" size="28" color="white" />
+        <v-icon icon="mdi-truck-fast" size="26" color="primary" />
         <div>
-          <div class="text-h6 font-weight-bold text-white lh-1">FastForward Logistics</div>
-          <div class="text-caption text-white" style="opacity: 0.8">Operations Dashboard</div>
+          <div class="text-subtitle-1 font-weight-bold lh-1" style="font-family: Inter, sans-serif; letter-spacing: -0.01em">
+            FastForward Logistics
+          </div>
+          <div class="text-caption text-medium-emphasis">Operations Dashboard</div>
         </div>
       </div>
     </v-app-bar-title>
 
     <template #append>
-      <div class="d-flex align-center ga-4 mr-2">
-        <!-- Date/time display -->
-        <div class="text-caption text-white text-right" style="opacity: 0.9; line-height: 1.4">
-          <div class="font-weight-medium">{{ currentDate }}</div>
+      <div class="d-flex align-center ga-4 mr-3">
+        <!-- Date/time -->
+        <div class="text-caption text-medium-emphasis text-right" style="line-height: 1.5">
+          <div class="font-weight-medium text-on-surface" style="opacity: 0.85">{{ currentDate }}</div>
           <div>{{ currentTime }}</div>
         </div>
 
@@ -22,26 +24,24 @@
         <v-btn-toggle
           v-model="selectedRange"
           density="compact"
-          color="white"
+          color="primary"
           variant="outlined"
           divided
           rounded="lg"
         >
-          <v-btn value="today" size="small" class="text-white">Today</v-btn>
-          <v-btn value="week" size="small" class="text-white">Week</v-btn>
-          <v-btn value="month" size="small" class="text-white">Month</v-btn>
-          <v-btn value="quarter" size="small" class="text-white">Quarter</v-btn>
+          <v-btn value="today" size="small">Today</v-btn>
+          <v-btn value="week" size="small">Week</v-btn>
+          <v-btn value="month" size="small">Month</v-btn>
+          <v-btn value="quarter" size="small">Quarter</v-btn>
         </v-btn-toggle>
 
         <!-- Last updated & refresh -->
         <div class="d-flex align-center ga-1">
-          <div class="text-caption text-white" style="opacity: 0.8">
-            Updated {{ lastUpdated }}
-          </div>
+          <span class="text-caption text-medium-emphasis">Updated {{ lastUpdated }}</span>
           <v-btn
             icon="mdi-refresh"
             variant="text"
-            color="white"
+            color="primary"
             size="small"
             :loading="refreshing"
             @click="onRefresh"
@@ -52,7 +52,7 @@
         <v-btn
           :icon="isDark ? 'mdi-weather-sunny' : 'mdi-weather-night'"
           variant="text"
-          color="white"
+          color="on-surface"
           size="small"
           @click="toggleTheme"
         />
@@ -99,4 +99,12 @@ function onRefresh() {
     lastUpdated.value = 'just now'
   }, 1200)
 }
-</script>
+<style scoped>
+.topbar {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12) !important;
+  font-family: Inter, sans-serif;
+}
+.lh-1 {
+  line-height: 1;
+}
+</style>

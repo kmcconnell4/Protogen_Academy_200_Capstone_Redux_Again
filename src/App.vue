@@ -7,7 +7,7 @@
 <script setup lang="ts">
 import { ref, provide } from 'vue'
 
-const theme = ref<'light' | 'dark'>('light')
+const theme = ref<'light' | 'dark'>('dark')
 
 function toggleTheme() {
   theme.value = theme.value === 'light' ? 'dark' : 'light'

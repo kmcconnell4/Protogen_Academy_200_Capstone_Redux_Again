@@ -8,11 +8,18 @@ Build a single-page internal operations dashboard for FastForward Logistics that
 
 ## Design
 
-- **Visual tone:** Professional, clean, and corporate. Think "airline ops center," not "startup SaaS." Use a neutral base (white/light gray) with a bold accent color drawn from the FastForward brand (e.g., deep blue or teal).
-- **Typography:** Clear hierarchy — large KPI numbers that are readable from across a conference table, with smaller supporting labels and trend indicators.
-- **Color coding:** Use a consistent semantic palette — green for on-target, amber for at-risk, red for missed/critical. Avoid overusing color; let it draw the eye to what matters.
-- **Data density:** The dashboard should feel information-rich but not overwhelming. Every element should earn its space.
-- **Presentation-ready:** It should look polished enough to project on a screen in a leadership meeting with zero prep.
+- **Visual tone:** Dark ops center. Think flight operations control room — not startup SaaS. The default theme is dark-first (`#0F1117` background, `#161C27` card surfaces, 1px `rgba(148,163,184,0.12)` borders). A light mode is available via the header toggle.
+- **Typography:** Inter (Google Fonts) throughout. KPI numbers rendered at `text-h3` size with `-0.02em` letter spacing — readable from across a conference table. Labels are uppercase with `0.08em` tracking.
+- **Color accent system:** Cards use per-metric 3px top borders to create visual identity without overloading the layout:
+  - Total Shipments — sky blue `#38BDF8`
+  - On-Time Delivery — emerald `#34D399`
+  - Avg Transit Time — violet `#A78BFA`
+  - Open Exceptions — amber `#FBBF24`
+  - Revenue in Transit — cyan `#22D3EE`
+- **Semantic palette:** Success `#34D399` (emerald), Warning `#FBBF24` (amber), Error `#F87171` (coral red). Applied to trend indicators, table row highlighting, and regional bars.
+- **Chart style:** Gradient area fills on dark backgrounds. Emerald/coral stacked bars for shipment volume. Muted grid lines (`rgba(148,163,184,0.08)`) and slate tick labels (`#64748B`). Custom dark tooltips (`#1E2636` background).
+- **Flat/border card discipline:** All cards use `elevation: 0` with a 1px border. No drop shadows except on hover (subtle lift). Every element earns its space.
+- **Presentation-ready:** Dark theme is optimized for projection in a dim conference room. Light mode available for daytime use. Both themes share the same Inter typography and semantic color logic.
 
 ---
 

@@ -12,6 +12,7 @@
             :value="kpis.totalShipments.current"
             :prior-value="kpis.totalShipments.prior"
             icon="mdi-package-variant-closed"
+            accent-color="#38BDF8"
             scroll-target="exceptions-section"
           />
         </v-col>
@@ -22,6 +23,7 @@
             :prior-value="kpis.onTimeRate.prior"
             format="percent"
             icon="mdi-check-circle-outline"
+            accent-color="#34D399"
           />
         </v-col>
         <v-col cols="12" sm="6" lg>
@@ -31,6 +33,7 @@
             :prior-value="kpis.avgTransitTime.prior"
             format="hours"
             icon="mdi-clock-outline"
+            accent-color="#A78BFA"
             :higher-is-better="false"
           />
         </v-col>
@@ -40,6 +43,7 @@
             :value="kpis.openExceptions.current"
             :prior-value="kpis.openExceptions.prior"
             icon="mdi-alert-circle-outline"
+            accent-color="#FBBF24"
             :higher-is-better="false"
             scroll-target="exceptions-section"
           />
@@ -51,6 +55,7 @@
             :prior-value="kpis.revenueInTransit.prior"
             format="currency"
             icon="mdi-currency-usd"
+            accent-color="#22D3EE"
           />
         </v-col>
       </v-row>

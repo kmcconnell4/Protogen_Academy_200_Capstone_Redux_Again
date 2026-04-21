@@ -72,14 +72,16 @@ const chartData = computed(() => ({
     {
       label: 'On Time',
       data: records.value.map((r) => r.onTimeCount),
-      backgroundColor: 'rgba(46, 125, 50, 0.85)',
+      backgroundColor: 'rgba(52, 211, 153, 0.8)',
       stack: 'volume',
+      borderRadius: 3,
     },
     {
       label: 'Late',
       data: records.value.map((r) => r.lateCount),
-      backgroundColor: 'rgba(198, 40, 40, 0.75)',
+      backgroundColor: 'rgba(248, 113, 113, 0.75)',
       stack: 'volume',
+      borderRadius: 3,
     },
   ],
 }))
@@ -88,8 +90,17 @@ const chartOptions = {
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
-    legend: { position: 'top' as const, align: 'end' as const },
+    legend: {
+      position: 'top' as const,
+      align: 'end' as const,
+      labels: { color: '#94A3B8', boxWidth: 12, font: { family: 'Inter, sans-serif' } },
+    },
     tooltip: {
+      backgroundColor: '#1E2636',
+      titleColor: '#F1F5F9',
+      bodyColor: '#94A3B8',
+      borderColor: '#2A3347',
+      borderWidth: 1,
       callbacks: {
         footer: (items: { parsed: { y: number } }[]) => {
           const total = items.reduce((s, i) => s + i.parsed.y, 0)
@@ -99,8 +110,17 @@ const chartOptions = {
     },
   },
   scales: {
-    x: { stacked: true, grid: { display: false } },
-    y: { stacked: true, beginAtZero: true },
+    x: {
+      stacked: true,
+      grid: { display: false },
+      ticks: { color: '#64748B', font: { family: 'Inter, sans-serif', size: 11 } },
+    },
+    y: {
+      stacked: true,
+      beginAtZero: true,
+      grid: { color: 'rgba(148, 163, 184, 0.08)' },
+      ticks: { color: '#64748B', font: { family: 'Inter, sans-serif', size: 11 } },
+    },
   },
 }
 </script>
