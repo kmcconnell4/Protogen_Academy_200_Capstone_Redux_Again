@@ -13,7 +13,6 @@
             :prior-value="kpis.totalShipments.prior"
             icon="mdi-package-variant-closed"
             accent-color="#38BDF8"
-            scroll-target="exceptions-section"
           />
         </v-col>
         <v-col cols="12" sm="6" lg>
