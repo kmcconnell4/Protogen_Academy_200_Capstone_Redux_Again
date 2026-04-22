@@ -3,11 +3,11 @@
     <v-app-bar-title>
       <div class="d-flex align-center ga-3">
         <v-icon icon="mdi-truck-fast" size="26" color="primary" />
-        <div>
+        <div class="d-none d-sm-block">
           <div class="text-subtitle-1 font-weight-bold lh-1" style="font-family: Inter, sans-serif; letter-spacing: -0.01em">
             FastForward Logistics
           </div>
-          <div class="text-caption text-medium-emphasis d-none d-sm-block">Operations Dashboard</div>
+          <div class="text-caption text-medium-emphasis">Operations Dashboard</div>
         </div>
       </div>
     </v-app-bar-title>
@@ -15,31 +15,27 @@
     <template #append>
       <div class="d-flex align-center ga-2 ga-sm-4 mr-2 mr-sm-3">
 
-        <!-- Date range: dropdown on mobile, button toggle on sm+ -->
+        <!-- Date range dropdown -->
         <v-select
           v-model="selectedRange"
           :items="rangeItems"
           density="compact"
           variant="outlined"
           hide-details
-          class="d-sm-none"
-          style="max-width: 120px; font-size: 13px"
+          class="range-select"
+          :menu-props="{ contentClass: 'range-select-menu' }"
         />
-        <v-btn-toggle
-          v-model="selectedRange"
+
+        <!-- Region dropdown -->
+        <v-select
+          v-model="selectedRegionValue"
+          :items="regionItems"
           density="compact"
-          color="primary"
           variant="outlined"
-          divided
-          rounded="lg"
-          class="d-none d-sm-flex"
-        >
-          <v-btn value="today" size="small">Today</v-btn>
-          <v-btn value="week" size="small">7 Days</v-btn>
-          <v-btn value="month" size="small">30 Days</v-btn>
-          <v-btn value="quarter" size="small">90 Days</v-btn>
-          <v-btn value="ytd" size="small">YTD</v-btn>
-        </v-btn-toggle>
+          hide-details
+          class="range-select region-select"
+          :menu-props="{ contentClass: 'range-select-menu' }"
+        />
 
         <!-- Refresh: label hidden on mobile, icon always visible -->
         <div class="d-flex align-center ga-1">
@@ -72,11 +68,16 @@ import { computed, inject, ref } from 'vue'
 import type { Ref } from 'vue'
 import { useMetrics } from '@/composables/useMetrics'
 
-const { selectedDateRange } = useMetrics()
+const { selectedDateRange, selectedRegion } = useMetrics()
 
 const selectedRange = computed({
   get: () => selectedDateRange.value,
   set: (v) => (selectedDateRange.value = v as typeof selectedDateRange.value),
+})
+
+const selectedRegionValue = computed({
+  get: () => selectedRegion.value ?? 'all',
+  set: (v: string) => (selectedRegion.value = v === 'all' ? null : v),
 })
 
 const rangeItems = [
@@ -84,7 +85,13 @@ const rangeItems = [
   { title: '7 Days', value: 'week' },
   { title: '30 Days', value: 'month' },
   { title: '90 Days', value: 'quarter' },
-  { title: 'Year to Date', value: 'ytd' },
+  { title: 'YTD', value: 'ytd' },
+]
+
+const regionNames = ['Northeast', 'Southeast', 'Midwest', 'West', 'International']
+const regionItems = [
+  { title: 'All Regions', value: 'all' },
+  ...regionNames.map((name) => ({ title: name, value: name })),
 ]
 
 const theme = inject<Ref<'light' | 'dark'>>('theme')!
@@ -110,5 +117,42 @@ function onRefresh() {
 }
 .lh-1 {
   line-height: 1;
+}
+.range-select {
+  width: 140px;
+  font-size: 13px;
+  font-family: Inter, sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+:deep(.range-select .v-field__outline) {
+  --v-field-border-opacity: 0.4;
+}
+:deep(.range-select .v-field--focused .v-field__outline) {
+  --v-field-border-opacity: 1;
+}
+:deep(.range-select .v-select__selection-text) {
+  color: rgb(var(--v-theme-primary));
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.region-select {
+  width: 150px;
+}
+</style>
+
+<style>
+.range-select-menu .v-list-item--active {
+  color: rgb(var(--v-theme-primary)) !important;
+}
+.range-select-menu .v-list-item-title {
+  font-size: 13px;
+  font-family: Inter, sans-serif;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 </style>
