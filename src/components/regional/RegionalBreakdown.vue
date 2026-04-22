@@ -79,7 +79,9 @@ import { useMetrics } from '@/composables/useMetrics'
 const { filteredRegions, selectedRegion } = useMetrics()
 
 const sortedRegions = computed(() =>
-  [...filteredRegions.value].sort((a, b) => b.onTimeRate - a.onTimeRate),
+  [...filteredRegions.value]
+    .filter((r) => r.totalShipments > 0)
+    .sort((a, b) => b.onTimeRate - a.onTimeRate),
 )
 
 function toggleRegion(name: string) {

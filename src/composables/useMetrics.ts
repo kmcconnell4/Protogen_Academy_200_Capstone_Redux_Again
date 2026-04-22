@@ -46,6 +46,13 @@ function getDateCutoff(range: DateRange): string {
   }
 }
 
+// Date-only filtered volume (no region scaling). Used by filteredRegions so that
+// selecting a region does not distort the scale/rate shown for other regions.
+const dateFilteredShipmentVolume = computed<ShipmentVolumeRecord[]>(() => {
+  const cutoff = getDateCutoff(selectedDateRange.value)
+  return data.shipmentVolume.filter((r) => r.date >= cutoff)
+})
+
 const filteredShipmentVolume = computed<ShipmentVolumeRecord[]>(() => {
   const cutoff = getDateCutoff(selectedDateRange.value)
   const dateFiltered = data.shipmentVolume.filter((r) => r.date >= cutoff)
@@ -140,7 +147,7 @@ const computedKpis = computed(() => {
     return {
       totalShipments: { current: 0, prior: data.kpis.totalShipments.prior },
       onTimeRate: { current: 0, prior: data.kpis.onTimeRate.prior },
-      avgTransitTime: { current: data.kpis.avgTransitTime.current, prior: data.kpis.avgTransitTime.prior },
+      avgTransitTime: { current: 0, prior: data.kpis.avgTransitTime.prior },
       openExceptions: { current: 0, prior: data.kpis.openExceptions.prior },
       revenueInTransit: { current: 0, prior: data.kpis.revenueInTransit.prior },
     }
@@ -213,7 +220,9 @@ const computedKpis = computed(() => {
 //   to the selected date range
 // - openExceptions: counted live from filteredExceptions (already date+region aware)
 const filteredRegions = computed(() => {
-  const filteredVol = filteredShipmentVolume.value
+  // Use date-only volume (ignoring region selection) so that selecting a region
+  // does not change the scale or on-time rate displayed for the other regions.
+  const filteredVol = dateFilteredShipmentVolume.value
   const filteredTotal = filteredVol.reduce((s, r) => s + r.totalShipments, 0)
   const filteredOnTime = filteredVol.reduce((s, r) => s + r.onTimeCount, 0)
 

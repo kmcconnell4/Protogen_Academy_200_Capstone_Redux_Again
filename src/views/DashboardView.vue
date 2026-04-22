@@ -68,7 +68,7 @@
 
         <v-col cols="12" lg="7" xl="8" class="d-flex flex-column" style="gap: 12px">
           <ShipmentVolumeChart />
-          <OnTimeDeliveryChart style="flex: 1 1 0; min-height: 0" />
+          <OnTimeDeliveryChart style="flex: 1 1 0; min-height: 200px" />
         </v-col>
       </v-row>
 

@@ -8,11 +8,11 @@
       </v-btn-toggle>
     </v-card-title>
     <v-card-text class="pa-2 pt-0">
-      <div v-if="records.length === 0" class="d-flex flex-column align-center justify-center text-medium-emphasis" style="height: 260px; gap: 8px">
+      <div v-if="records.length === 0" class="d-flex flex-column align-center justify-center text-medium-emphasis" style="height: 200px; gap: 8px">
         <v-icon icon="mdi-chart-bar" size="40" opacity="0.3" />
         <span class="text-body-2">No shipment data for this period</span>
       </div>
-      <Bar v-else :data="chartData" :options="chartOptions" style="max-height: 260px" />
+      <Bar v-else :data="chartData" :options="chartOptions" style="height: 200px; max-height: 200px" />
     </v-card-text>
   </v-card>
 </template>
