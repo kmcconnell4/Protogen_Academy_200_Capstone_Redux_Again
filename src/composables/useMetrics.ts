@@ -16,28 +16,39 @@ const exceptionSearch = ref('')
 const exceptionTypeFilter = ref<string | null>(null)
 const exceptionSeverityFilter = ref<string | null>(null)
 
-function getDateCutoff(range: DateRange): Date {
+function localDateStr(d: Date): string {
+  const y = d.getFullYear()
+  const m = String(d.getMonth() + 1).padStart(2, '0')
+  const dd = String(d.getDate()).padStart(2, '0')
+  return `${y}-${m}-${dd}`
+}
+
+// Returns a YYYY-MM-DD cutoff string in LOCAL time so that "today" always
+// reflects the user's wall-clock date, regardless of UTC offset.
+// Shipment volume records use bare date strings (compared lexicographically),
+// and exception timestamps use .slice(0,10) before comparison.
+function getDateCutoff(range: DateRange): string {
   const now = new Date()
-  // Work in UTC throughout to match how bare date strings like "2026-04-21"
-  // are parsed by the Date constructor (always UTC midnight).
-  const todayUtc = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate())
+  const y = now.getFullYear()
+  const mo = now.getMonth()
+  const d = now.getDate()
   switch (range) {
     case 'today':
-      return new Date(todayUtc)
+      return localDateStr(now)
     case 'week':
-      return new Date(todayUtc - 6 * 86_400_000)
+      return localDateStr(new Date(y, mo, d - 6))
     case 'month':
-      return new Date(todayUtc - 30 * 86_400_000)
+      return localDateStr(new Date(y, mo, d - 30))
     case 'quarter':
-      return new Date(todayUtc - 90 * 86_400_000)
+      return localDateStr(new Date(y, mo, d - 90))
     case 'ytd':
-      return new Date(Date.UTC(now.getUTCFullYear(), 0, 1))
+      return `${y}-01-01`
   }
 }
 
 const filteredShipmentVolume = computed<ShipmentVolumeRecord[]>(() => {
   const cutoff = getDateCutoff(selectedDateRange.value)
-  const dateFiltered = data.shipmentVolume.filter((r) => new Date(r.date) >= cutoff)
+  const dateFiltered = data.shipmentVolume.filter((r) => r.date >= cutoff)
 
   if (!selectedRegion.value) return dateFiltered
 
@@ -66,7 +77,7 @@ const filteredShipmentVolume = computed<ShipmentVolumeRecord[]>(() => {
 // Open Exceptions card always reflects the true period total.
 const kpiExceptions = computed<Exception[]>(() => {
   const cutoff = getDateCutoff(selectedDateRange.value)
-  let list = data.exceptions.filter((e) => new Date(e.createdAt) >= cutoff)
+  let list = data.exceptions.filter((e) => e.createdAt.slice(0, 10) >= cutoff)
   if (selectedRegion.value) {
     list = list.filter((e) => e.region === selectedRegion.value)
   }
@@ -78,7 +89,7 @@ const filteredExceptions = computed<Exception[]>(() => {
 
   // Filter by date range
   const cutoff = getDateCutoff(selectedDateRange.value)
-  list = list.filter((e) => new Date(e.createdAt) >= cutoff)
+  list = list.filter((e) => e.createdAt.slice(0, 10) >= cutoff)
 
   // Filter by region
   if (selectedRegion.value) {
@@ -123,7 +134,17 @@ const filteredExceptions = computed<Exception[]>(() => {
 
 const computedKpis = computed(() => {
   const vol = filteredShipmentVolume.value
-  if (!vol.length) return data.kpis
+  if (!vol.length) {
+    // No data for the selected period — return zeros so KPI cards don't show
+    // the all-time dataset totals as if they were filtered values.
+    return {
+      totalShipments: { current: 0, prior: data.kpis.totalShipments.prior },
+      onTimeRate: { current: 0, prior: data.kpis.onTimeRate.prior },
+      avgTransitTime: { current: data.kpis.avgTransitTime.current, prior: data.kpis.avgTransitTime.prior },
+      openExceptions: { current: 0, prior: data.kpis.openExceptions.prior },
+      revenueInTransit: { current: 0, prior: data.kpis.revenueInTransit.prior },
+    }
+  }
 
   const total = vol.reduce((s, r) => s + r.totalShipments, 0)
   const onTime = vol.reduce((s, r) => s + r.onTimeCount, 0)
@@ -153,15 +174,34 @@ const computedKpis = computed(() => {
   const revenueScale = allTimeTotal > 0 ? total / allTimeTotal : 1
   const revenue = Math.round(data.kpis.revenueInTransit.current * revenueScale)
 
+  // For "today", compare against yesterday so the trend is day-over-day
+  // rather than today's single-day count vs. a full multi-period total.
+  let priorTotal = data.kpis.totalShipments.prior
+  let priorOnTimeRate = data.kpis.onTimeRate.prior
+  let priorRevenue = data.kpis.revenueInTransit.prior
+  if (selectedDateRange.value === 'today') {
+    const now = new Date()
+    const yesterdayStr = localDateStr(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1))
+    const yesterdayRecord = data.shipmentVolume.find((r) => r.date === yesterdayStr)
+    if (yesterdayRecord) {
+      priorTotal = yesterdayRecord.totalShipments
+      priorOnTimeRate =
+        yesterdayRecord.totalShipments > 0
+          ? Math.round((yesterdayRecord.onTimeCount / yesterdayRecord.totalShipments) * 1000) / 10
+          : 0
+      priorRevenue = Math.round(data.kpis.revenueInTransit.current * (priorTotal / data.kpis.totalShipments.current))
+    }
+  }
+
   return {
-    totalShipments: { current: total, prior: data.kpis.totalShipments.prior },
-    onTimeRate: { current: onTimeRate, prior: data.kpis.onTimeRate.prior },
+    totalShipments: { current: total, prior: priorTotal },
+    onTimeRate: { current: onTimeRate, prior: priorOnTimeRate },
     avgTransitTime: {
       current: Math.round(avgTransit * 10) / 10,
       prior: data.kpis.avgTransitTime.prior,
     },
     openExceptions: { current: openEx, prior: data.kpis.openExceptions.prior },
-    revenueInTransit: { current: revenue, prior: data.kpis.revenueInTransit.prior },
+    revenueInTransit: { current: revenue, prior: priorRevenue },
   }
 })
 
@@ -196,7 +236,7 @@ const filteredRegions = computed(() => {
   const exByRegion: Record<string, number> = {}
   const cutoff = getDateCutoff(selectedDateRange.value)
   for (const e of data.exceptions) {
-    if (new Date(e.createdAt) >= cutoff) {
+    if (e.createdAt.slice(0, 10) >= cutoff) {
       exByRegion[e.region] = (exByRegion[e.region] ?? 0) + 1
     }
   }
